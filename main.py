@@ -1,8 +1,9 @@
 import pygame
 import sys
+import random
 from abc import ABC, abstractmethod
 
-SCREEN_WIDTH = 600
+SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 400
 FPS = 60
 
@@ -15,13 +16,42 @@ class GameObject(ABC):
     def update(self):
         pass
 
-class Player:
+class Pipe (GameObject):
+    GAP_SIZE = 120
+    WIDTH = 50
+
+    def __init__(self, x_pos, screen_height):
+        self.x = x_pos
+        self.velocity_x = -3
+        
+        min_y = 50 + self.GAP_SIZE // 2
+        max_y = screen_height - 50 - self.GAP_SIZE // 2
+        self.gap_center_y = random.randint(min_y, max_y)
+
+        top_height = self.gap_center_y - self.GAP_SIZE // 2
+        self.rect_top = pygame.Rect(self.x, 0, self.WIDTH, top_height)
+
+        bottom_y = self.gap_center_y + self.GAP_SIZE // 2
+        bottom_height = screen_height - bottom_y
+        self.rect_bottom = pygame.Rect(self.x, bottom_y, self.WIDTH, bottom_height)
+        
+    def update(self):
+        self.x += self.velocity_x
+        self.rect_top.x = self.x
+        self.rect_bottom.x = self.x
+        
+    def draw(self, screen):
+        pygame.draw.rect(screen, (0, 200, 50), self.rect_top)
+        pygame.draw.rect(screen, (0, 200, 50), self.rect_bottom)
+
+class Player(GameObject):
     def __init__(self, x, y, radius, color):
         self.x = x
         self.y = y
         self.radius = radius
         self.color = color
         self.velocity_y = 0
+        self.rect = pygame.Rect(x - radius, y - radius, radius * 2, radius * 2)
 
     def apply_gravity(self):
         self.velocity_y += GRAVITY
@@ -32,6 +62,7 @@ class Player:
     def update(self):
         self.apply_gravity()
         self.y += self.velocity_y
+        self.rect.center = (int(self.x), int(self.y))
         
         if self.y > SCREEN_HEIGHT - self.radius:
             self.y = SCREEN_HEIGHT - self.radius
@@ -39,6 +70,15 @@ class Player:
 
     def draw(self, screen):
         pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
+
+def check_collision(player, pipes):
+    for pipe in pipes:
+        if player.rect.colliderect(pipe.rect_top) or player.rect.colliderect(pipe.rect_bottom):
+            return True
+    return False
+
+
+    
 
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -60,6 +100,9 @@ while running:
         
         if event.type == pygame.KEYDOWN:
             player.jump()
+
+    if check_collision(player, pipe_list): 
+        print("GAME OVER! Collision!")
 
     player.update()
 
