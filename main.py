@@ -12,9 +12,14 @@ JUMP_STRENGTH = -8
 
 PIPE_SPAWN = pygame.USEREVENT
 
+with open("sauvegarde.txt", "r") as fichier:
+    high_score = fichier.read()
+
 pygame.init()
 
 pygame.time.set_timer(PIPE_SPAWN, 1500)
+
+police = pygame.font.Font(None, 50)
 
 class GameObject(ABC):
     @abstractmethod
@@ -132,6 +137,8 @@ while running:
     player.draw(screen)
 
     pygame.display.flip()
+
+    texte_surface = police.render(f"Score : {high_score}", True, (255, 255, 255))
     
     clock.tick(FPS)
 
