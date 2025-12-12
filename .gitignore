@@ -1,4 +1,9 @@
 test.py
 test.txt
 temp.py
-.md
+*.md
+*.zip
+*.spec
+build/
+dist/
+DossierJouable/
