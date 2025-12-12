@@ -8,8 +8,13 @@ SCREEN_HEIGHT = 400
 FPS = 60
 
 GRAVITY = 0.5
-JUMP_STRENGTH = -10
+JUMP_STRENGTH = -8
 
+PIPE_SPAWN = pygame.USEREVENT
+
+pygame.init()
+
+pygame.time.set_timer(PIPE_SPAWN, 1500)
 
 class GameObject(ABC):
     @abstractmethod
@@ -78,9 +83,6 @@ def check_collision(player, pipes):
     return False
 
 
-    
-
-pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Pygame Flappy Physics")
 clock = pygame.time.Clock()
@@ -92,6 +94,8 @@ player = Player(
     color=(255, 100, 100)
 )
 
+pipe_list = []
+
 running = True
 while running:
     for event in pygame.event.get():
@@ -100,14 +104,31 @@ while running:
         
         if event.type == pygame.KEYDOWN:
             player.jump()
+            
+        if event.type == PIPE_SPAWN:
+            new_pipe = Pipe(SCREEN_WIDTH, SCREEN_HEIGHT)
+            pipe_list.append(new_pipe)
 
     if check_collision(player, pipe_list): 
         print("GAME OVER! Collision!")
+        running = False
 
     player.update()
+    
+    pipes_to_remove = []
+    for pipe in pipe_list:
+        pipe.update()
+        if pipe.x + pipe.WIDTH < 0:
+            pipes_to_remove.append(pipe)
+            
+    for pipe in pipes_to_remove:
+        pipe_list.remove(pipe)
 
     screen.fill((50, 50, 50))
     
+    for pipe in pipe_list:
+        pipe.draw(screen)
+        
     player.draw(screen)
 
     pygame.display.flip()
@@ -115,4 +136,4 @@ while running:
     clock.tick(FPS)
 
 pygame.quit()
-sys.exit()
+sys.exit() 
