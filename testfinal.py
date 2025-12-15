@@ -2,6 +2,7 @@ import pygame
 import sys
 import random
 import os
+from abc import ABC, abstractmethod
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 400
@@ -40,7 +41,12 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Oiseau Battant Ultime 2000")
 clock = pygame.time.Clock()
 
-class Entity:
+class GameObject(ABC):
+    @abstractmethod
+    def update():
+        pass
+
+class Entity(GameObject):
     def __init__(self, x, y, image_path=None, width=0, height=0, color=(255, 0, 255)):
         self.x = x
         self.y = y
